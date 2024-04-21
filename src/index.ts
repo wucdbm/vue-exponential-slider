@@ -1,12 +1,28 @@
-import { computed, nextTick, Ref, ref, toValue, watch } from 'vue'
+import {
+    computed,
+    nextTick,
+    Ref,
+    ref,
+    toValue,
+    watch,
+    WritableComputedRef,
+} from 'vue'
 import type { ComputedRef, MaybeRefOrGetter } from 'vue'
 import {
     Bounds,
     LinearConfig,
     modelToStep,
+    ResolvedConfig,
     stepToModel,
     useExponentialSlider,
 } from 'wucdbm-exponential-slider'
+
+export type StepModel = {
+    model: WritableComputedRef<Bounds>
+    stepToModel: (step: number) => number
+    modelToStep: (model: number) => number
+    config: ComputedRef<ResolvedConfig>
+}
 
 export function useStepModel(
     model: Ref<Bounds>,
@@ -16,11 +32,15 @@ export function useStepModel(
     options: {
         watchBounds?: boolean
         fixModelOnInit?: boolean
+        modelBeautifier?: (model: number, field: 'min' | 'max') => number
     } = {
         watchBounds: false,
         fixModelOnInit: false,
     },
-): ComputedRef<Bounds> {
+): StepModel {
+    const modelBeautifier =
+        options.modelBeautifier || ((model: number) => model)
+
     const calculator = computed(() => {
         return useExponentialSlider(
             toValue(steps),
@@ -29,14 +49,23 @@ export function useStepModel(
         )
     })
 
-    const stepModel = computed((): Bounds => {
-        const { modelToStep } = calculator.value
-        const modelValue = toValue(model)
+    const stepModel = computed({
+        get(): Bounds {
+            const { modelToStep } = calculator.value
+            const modelValue = toValue(model)
 
-        return {
-            min: Math.round(modelToStep(modelValue.min)),
-            max: Math.round(modelToStep(modelValue.max)),
-        }
+            return {
+                min: modelToStep(modelValue.min),
+                max: modelToStep(modelValue.max),
+            }
+        },
+        set(b: Bounds) {
+            const { stepToModel } = calculator.value
+            model.value = {
+                min: modelBeautifier(stepToModel(b.min), 'min'),
+                max: modelBeautifier(stepToModel(b.max), 'max'),
+            }
+        },
     })
 
     if (options.watchBounds) {
@@ -96,7 +125,16 @@ export function useStepModel(
         }
     }
 
-    return stepModel
+    return {
+        model: stepModel,
+        modelToStep: (model: number) => {
+            return calculator.value.modelToStep(model)
+        },
+        stepToModel: (step: number) => {
+            return calculator.value.stepToModel(step)
+        },
+        config: computed(() => calculator.value.config),
+    }
 }
 
 if (import.meta.vitest) {
@@ -123,7 +161,7 @@ if (import.meta.vitest) {
                         max: config.max,
                     })
 
-                    const sliderModel = useStepModel(
+                    const { model: sliderModel } = useStepModel(
                         inputModel,
                         () => steps,
                         () => bounds,
@@ -183,7 +221,7 @@ if (import.meta.vitest) {
                 },
             })
 
-            const sliderModel = useStepModel(
+            const { model: sliderModel } = useStepModel(
                 inputModel,
                 () => steps,
                 bounds,
@@ -308,6 +346,96 @@ if (import.meta.vitest) {
             nextTick(() => {
                 expect(inputModel.value.min).toBe(25574)
             })
+        })
+
+        test('Support for mutable step model', () => {
+            const steps = 1_000
+            const bounds: Ref<Bounds> = ref({
+                min: 500,
+                max: 125_000,
+            })
+            const linearConfig: LinearConfig = {
+                maxLinear: 15_000,
+                linearPercent: 75,
+            }
+
+            const inputModel: Ref<Bounds> = ref({
+                min: 25491,
+                max: bounds.value.max,
+            })
+
+            expect(inputModel.value.min).toBe(25491)
+
+            const { model: stepModel } = useStepModel(
+                inputModel,
+                () => steps,
+                bounds,
+                () => linearConfig,
+            )
+
+            expect(inputModel.value.min).toBe(25491)
+            expect(inputModel.value.max).toBe(125_000)
+
+            expect(stepModel.value.min).toBe(826)
+            expect(stepModel.value.max).toBe(1000)
+
+            stepModel.value = {
+                min: 500,
+                max: 985,
+            }
+
+            expect(inputModel.value.min).toBe(10500)
+            expect(inputModel.value.max).toBe(112254.2)
+        })
+
+        test('Support for mutable step model with model beautifier', () => {
+            const steps = 1_000
+            const bounds: Ref<Bounds> = ref({
+                min: 500,
+                max: 125_000,
+            })
+            const linearConfig: LinearConfig = {
+                maxLinear: 15_000,
+                linearPercent: 75,
+            }
+
+            const inputModel: Ref<Bounds> = ref({
+                min: 25491,
+                max: bounds.value.max,
+            })
+
+            expect(inputModel.value.min).toBe(25491)
+
+            const { model: stepModel } = useStepModel(
+                inputModel,
+                () => steps,
+                bounds,
+                () => linearConfig,
+                {
+                    modelBeautifier(model, field) {
+                        if ('min' === field) {
+                            // return model
+                            return Math.floor(model)
+                        }
+
+                        return Math.ceil(model)
+                    },
+                },
+            )
+
+            expect(inputModel.value.min).toBe(25491)
+            expect(inputModel.value.max).toBe(125_000)
+
+            expect(stepModel.value.min).toBe(826)
+            expect(stepModel.value.max).toBe(1000)
+
+            stepModel.value = {
+                min: 768,
+                max: 985,
+            }
+
+            expect(inputModel.value.min).toBe(16067)
+            expect(inputModel.value.max).toBe(112255)
         })
     })
 }
