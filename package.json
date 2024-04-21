@@ -18,7 +18,7 @@
         "dev": "vite",
         "preview": "vite preview",
         "build": "tsc --p ./tsconfig-build.json && vite build",
-        "prepublishOnly": "npm run test --run && npm run build",
+        "prepublishOnly": "npm run test -- --run && npm run build",
         "lint": "eslint .",
         "format": "prettier --write .",
         "prepare": "husky install",
