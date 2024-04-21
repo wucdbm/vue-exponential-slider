@@ -18,7 +18,7 @@ export default defineConfig({
             formats: ['es'],
         },
         rollupOptions: {
-            external: ['vite', 'vue'],
+            external: ['vite', 'vue', 'wucdbm-exponential-slider'],
             output: {
                 assetFileNames: 'assets/[name][extname]',
                 entryFileNames: '[name].js',
