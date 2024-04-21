@@ -1,5 +1,5 @@
 import { computed, nextTick, Ref, ref, toValue, watch } from 'vue'
-import type { ComputedRef, MaybeRefOrGetter, WritableComputedRef } from 'vue'
+import type { ComputedRef, MaybeRefOrGetter } from 'vue'
 import {
     Bounds,
     LinearConfig,
@@ -9,7 +9,7 @@ import {
 } from 'wucdbm-exponential-slider'
 
 export function useStepModel(
-    model: WritableComputedRef<Bounds> | Ref<Bounds>,
+    model: Ref<Bounds>,
     steps: MaybeRefOrGetter<number>,
     bounds: MaybeRefOrGetter<Bounds>,
     linearConfig?: MaybeRefOrGetter<LinearConfig | undefined>,

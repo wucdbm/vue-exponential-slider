@@ -18,23 +18,7 @@ export default defineConfig({
             formats: ['es'],
         },
         rollupOptions: {
-            external: [
-                // Node Builtins
-                'node:path',
-                'node:http',
-                'node:fs',
-                // Libs
-                '@unhead/ssr',
-                '@unhead/vue',
-                '@unhead/head',
-                'chalk',
-                'connect',
-                'node-fetch',
-                'vite',
-                'vue',
-                '@vue/server-renderer',
-                'vue-router',
-            ],
+            external: ['vite', 'vue'],
             output: {
                 assetFileNames: 'assets/[name][extname]',
                 entryFileNames: '[name].js',
