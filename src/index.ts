@@ -24,6 +24,8 @@ export type StepModel = {
     config: ComputedRef<ResolvedConfig>
 }
 
+export type ModelBeautifier = (model: number, field: 'min' | 'max') => number
+
 export function useStepModel(
     model: Ref<Bounds>,
     steps: MaybeRefOrGetter<number>,
@@ -32,7 +34,7 @@ export function useStepModel(
     options: {
         watchBounds?: boolean
         fixModelOnInit?: boolean
-        modelBeautifier?: (model: number, field: 'min' | 'max') => number
+        modelBeautifier?: ModelBeautifier
     } = {
         watchBounds: false,
         fixModelOnInit: false,

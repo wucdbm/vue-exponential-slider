@@ -2,7 +2,7 @@
     "name": "wucdbm-vue-exponential-slider",
     "private": false,
     "description": "Vue bindings to wucdbm-exponential-slider",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "type": "module",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
