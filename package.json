@@ -2,7 +2,7 @@
     "name": "wucdbm-vue-exponential-slider",
     "private": false,
     "description": "Vue bindings to wucdbm-exponential-slider",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "type": "module",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
@@ -24,12 +24,10 @@
         "prepare": "husky install",
         "test": "vitest --reporter verbose"
     },
-    "dependencies": {
-        "wucdbm-exponential-slider": "~1"
-    },
     "peerDependencies": {
         "vite": "^5.0.12",
-        "vue": "~3"
+        "vue": "~3",
+        "wucdbm-exponential-slider": "~1"
     },
     "peerDependenciesMeta": {
         "vue": {
@@ -52,7 +50,8 @@
         "vite": "^5.0.12",
         "vite-plugin-dts": "^3.7.2",
         "vitest": "^1.5.0",
-        "vue": "~3"
+        "vue": "~3",
+        "wucdbm-exponential-slider": "~1"
     },
     "lint-staged": {
         "**/*.{js,ts,tsx}": [
