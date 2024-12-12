@@ -103,8 +103,8 @@ export function useStepModel(
             const { stepToModel } = calculator.value
 
             model.value = {
-                min: Math.floor(stepToModel(stepModel.value.min)),
-                max: Math.ceil(stepToModel(stepModel.value.max)),
+                min: modelBeautifier(stepToModel(stepModel.value.min), 'min'),
+                max: modelBeautifier(stepToModel(stepModel.value.max), 'max'),
             }
         })
     }
@@ -113,8 +113,8 @@ export function useStepModel(
         const { stepToModel } = calculator.value
 
         const modelForValueModel = {
-            min: Math.floor(stepToModel(stepModel.value.min)),
-            max: Math.ceil(stepToModel(stepModel.value.max)),
+            min: modelBeautifier(stepToModel(stepModel.value.min), 'min'),
+            max: modelBeautifier(stepToModel(stepModel.value.max), 'max'),
         }
 
         if (
@@ -265,10 +265,11 @@ if (import.meta.vitest) {
                 () => linearConfig,
                 {
                     fixModelOnInit: true,
+                    modelBeautifier: (v: number) => Math.round(v),
                 },
             )
 
-            expect(inputModel.value.min).toBe(25619)
+            expect(inputModel.value.min).toBe(25620)
         })
 
         test('Changing bounds with watchBounds flag on mutates the input model', () => {
@@ -296,6 +297,7 @@ if (import.meta.vitest) {
                 () => linearConfig,
                 {
                     watchBounds: true,
+                    modelBeautifier: (v: number) => Math.round(v),
                 },
             )
 
@@ -305,7 +307,7 @@ if (import.meta.vitest) {
             }
 
             nextTick(() => {
-                expect(inputModel.value.min).toBe(25574)
+                expect(inputModel.value.min).toBe(25575)
             })
         })
 
@@ -335,10 +337,11 @@ if (import.meta.vitest) {
                 {
                     fixModelOnInit: true,
                     watchBounds: true,
+                    modelBeautifier: (v: number) => Math.round(v),
                 },
             )
 
-            expect(inputModel.value.min).toBe(25619)
+            expect(inputModel.value.min).toBe(25620)
 
             bounds.value = {
                 min: 1_000,
@@ -346,7 +349,7 @@ if (import.meta.vitest) {
             }
 
             nextTick(() => {
-                expect(inputModel.value.min).toBe(25574)
+                expect(inputModel.value.min).toBe(25575)
             })
         })
 
